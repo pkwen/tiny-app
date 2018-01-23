@@ -7,7 +7,12 @@
       <% include ./partials/_header %>
     </header>
     <ul>
-        <li><a href='#'></a> Shortened URL: <a href='#'><%= shortURL %></a></li>
+        <li><h1>Shortened URL: <h1><%= shortURL %></li>
     </ul>
+    <form action="/urls/<%= shortURL %>" method="POST" style="margin:150px;">
+    <label for="longURL">Enter updated URL:</label>
+    <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+    <input type="submit" value="Submit">
+    </form>
   </body>
 </html>
