@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>TinyApp</title>
+    <!-- <base href="http://localhost:8080/urls"> -->
+  </head>
+  <body>
+    <header>
+      <% include ./partials/_header %>
+    </header>
+    <ul>
+      <% for(var i in urls) { %>
+        <li><a href=<%= urls[i] %>><%= urls[i] %></a> Shortened URL: <a href=<%= i %>><%= i %></a></li>
+      <% } %>
+    </ul>
+    <a href='#'>Shorten URL</a>
+  </body>
+</html>
