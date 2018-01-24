@@ -1,9 +1,12 @@
+//import statements
 var express = require("express");
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
+
+//global constants
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -22,6 +25,7 @@ const users = {
   }
 };
 
+//body-parser, ejs engine and cookie-parser implementations
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(cookieParser());
@@ -98,7 +102,7 @@ app.post("/login", (req, res) => {
       console.log("login success");
       res.cookie("user_id", users[user]["id"])
       .redirect("/urls");
-      break;
+      return;
     }
   }
   res.render("login", { invalid: true });
