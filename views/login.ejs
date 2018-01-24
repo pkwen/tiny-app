@@ -10,18 +10,15 @@
          body { padding: 50px; }
       </style>
     </header>
-    <% if(repeat) { %>
-    <p>Email address already in use, please try again.</p>
-    <% } %>
     <% if(invalid) { %>
-    <p>Please enter a valid password.</p>
+    <p>Please enter valid email and/or password.</p>
     <% } %>
-    <form action="/register" method="POST">
+    <form action="/login" method="POST">
     <label for="email">Enter email:</label>
     <input id="email" type="email" name="email" placeholder="johndoe@gmail.com">
-    <label for="password">Enter password (minimum 6 characters):</label>
+    <label for="password">Enter password:</label>
     <input id="password" type="password" name="password" placeholder="********">
-    <input type="submit" value="Register">
+    <input type="submit" value="Log In">
     </form>
   </body>
 </html>

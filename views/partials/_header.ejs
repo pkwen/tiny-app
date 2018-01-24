@@ -5,16 +5,17 @@
 
 <h1 class="jumbotron">TinyApp</h1>
 <div id="login" class="row text-right">
-<% if(username){ %>
+<% if(user){ %>
   <form action="/logout" method="POST">
-    <label>Logged in as: <%=username%></label>
+    <label>Logged in as: <%=user["email"]%></label>
     <input type="submit" value="Logout">
   </form>
 <% } else { %>
-  <form action="/login" method="POST">
-    <label for="username">Enter your username:</label>
-    <input id="username" type="text" name="username" placeholder="username" style="width: 100px">
-    <input type="submit" value="Submit">
+  <form action="/register" method="GET">
+    <button>Register</button>
+  </form>
+  <form action="/login" method="GET">
+    <button>Log In</button>
   </form>
 <% } %>
 </div>
