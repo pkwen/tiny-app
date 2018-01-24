@@ -18,11 +18,11 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let tempVars = {
+  let templateVars = {
     username: req.cookies["name"],
     urls : urlDatabase
   };
-  res.render('urls_index', tempVars);
+  res.render('urls_index', templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -43,7 +43,10 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render('urls_new');
+  let templateVars = {
+    username: req.cookies["name"]
+  };
+  res.render('urls_new', templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
