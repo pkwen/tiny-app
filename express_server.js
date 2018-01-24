@@ -8,8 +8,14 @@ const cookieParser = require("cookie-parser");
 
 //global constants
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "random1"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "random1"
+  }
 };
 
 const users = {
@@ -36,23 +42,6 @@ app.get("/", (req, res) => {
   }else {
     res.redirect("/login");
   }
-});
-
-//index page get route
-app.get("/urls", (req, res) => {
-  let templateVars = {
-    user: users[req.cookies.user_id],
-    urls : urlDatabase
-  };
-  res.render("urls_index", templateVars);
-});
-
-//add new link to be shortened route
-app.post("/urls", (req, res) => {
-  // console.log(req.body);
-  let short = generateRandomString();
-  urlDatabase[short] = req.body.longURL;
-  res.redirect(`/urls/${short}`);
 });
 
 //register page get route
@@ -114,34 +103,70 @@ app.post("/logout", (req, res) => {
     .redirect("/urls");
 });
 
+//index page get route
+app.get("/urls", (req, res) => {
+  let templateVars = {
+    user: users[req.cookies.user_id],
+    urls : urlsForUser(req.cookies.user_id)
+  };
+  res.render("urls_index", templateVars);
+});
+
+//create shortURL route
+app.post("/urls", (req, res) => {
+  // console.log(req.body);
+  let short = generateRandomString();
+  urlDatabase[short] = { longURL: req.body.longURL, userID: req.cookies.user_id };
+  res.redirect(`/urls/${short}`);
+});
+
 //new url to be shortened get route
 app.get("/urls/new", (req, res) => {
-  let templateVars = {
-    user: users[req.cookies.user_id]
-  };
-  res.render("urls_new", templateVars);
+  if(req.cookies.user_id) {
+    let templateVars = {
+      user: users[req.cookies.user_id]
+    };
+    res.render("urls_new", templateVars);
+  }else {
+    res.redirect("/login");
+  }
 });
 
 //shortened url page get route
 app.get("/urls/:id", (req, res) => {
-  let templateVars = {
-    user: users[req.cookies.user_id],
-    shortURL: req.params.id
-  };
-  res.render("urls_show", templateVars);
+  if(req.cookies.user_id !== undefined) {
+    if(req.cookies.user_id === urlDatabase[req.params.id]["userID"]) {
+      let templateVars = {
+        user: users[req.cookies.user_id],
+        shortURL: req.params.id
+      };
+      res.render("urls_show", templateVars);
+    } else {
+      res.send("Cannot view because this link does not belong to you.");
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
 //establish key value pair between short and long urls
 app.post("/urls/:id", (req, res) => {
-  //update req.id longURL
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect("/urls");
+  if(req.cookies.user_id === urlDatabase[req.params.id]["userID"]) {
+    urlDatabase[req.params.id]["longURL"] = req.body.longURL;
+    res.redirect("/urls");
+  } else {
+    res.send("You can only update your own links.");
+  }
 });
 
 //delete shortened url post route
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls");
+  if(req.cookies.user_id === urlDatabase[req.params.id]["userID"]) {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+  } else {
+    res.send("You can only delete your own links.");
+  }
 });
 
 //json get route
@@ -151,7 +176,7 @@ app.get("/urls.json", (req, res) => {
 
 //redirect short to long url get route
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL]["longURL"];
   res.redirect(longURL);
 });
 
@@ -183,4 +208,15 @@ function generateRandomString() {
     }
   }
   return str;
+}
+
+//function that iterates through urlDatabase and return properties that possesses the userID provided
+function urlsForUser(id) {
+  var subset = {};
+  for(let obj in urlDatabase) {
+    if(urlDatabase[obj]["userID"] === id) {
+      subset[obj] = urlDatabase[obj];
+    }
+  }
+  return subset;
 }
