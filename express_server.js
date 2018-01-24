@@ -32,6 +32,23 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${short}`);
 });
 
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
+app.post("/register", (req, res) => {
+  if(req.body.email.length > 4 && req.body.password.length >= 6) {
+    let loginInfo = {
+      username : req.body.email,
+      password : req.body.password
+    };
+    console.log(loginInfo);
+    res.redirect("/urls");
+  } else {
+    res.redirect("/register");
+  }
+});
+
 app.post("/login", (req, res) => {
   res.cookie("name", req.body.username)
     .redirect('/urls');
