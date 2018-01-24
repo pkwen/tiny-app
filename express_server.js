@@ -29,8 +29,9 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   if(req.cookies["user_id"]) {
     res.redirect("/urls");
+  }else {
+    res.redirect("/login");
   }
-  res.redirect("/register");
 });
 
 //index page get route
@@ -93,13 +94,14 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   for(let user in users) {
     console.log(`${req.body.email}\n${req.body.password}\n${users[user]["email"]} : ${users[user]["password"]}`);
-    if(req.body.email == users[user]["email"] && req.body.password == users[user]["password"]) {
+    if(req.body.email === users[user]["email"] && req.body.password === users[user]["password"]) {
+      console.log("login success");
       res.cookie("user_id", users[user]["id"])
-        .redirect("/urls");
-    }else {
-      res.render("login", { invalid: true });
+      .redirect("/urls");
+      break;
     }
   }
+  res.render("login", { invalid: true });
 });
 
 //logout form post route
@@ -161,6 +163,7 @@ app.get("/*", (req, res) => {
     </html>\n`);
 });
 
+//server listening for events
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
