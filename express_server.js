@@ -1,9 +1,10 @@
 //import statements
 var express = require("express");
 var app = express();
-var PORT = process.env.PORT || 8080; // default port 8080
+var PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcrypt");
 
 
 //global constants
@@ -22,12 +23,12 @@ const users = {
   "random1": {
     id: "random1",
     email: "random1@example.com",
-    password: "asdfzxcv"
+    password: bcrypt.hashSync("asdfzxcv", 10)
   },
   "random2": {
     id: "random2",
     email: "random2@example.com",
-    password: "qwerasdf"
+    password: bcrypt.hashSync("qwerasdf", 10)
   }
 };
 
@@ -61,10 +62,11 @@ app.post("/register", (req, res) => {
   }
   if(!repeat && req.body.email.length > 4 && req.body.password.length >= 6) {
     var userID = generateRandomString();
+    var hPass = bcrypt.hashSync(req.body.password, 10);
     users[userID] = {
       id: userID,
       email: req.body.email,
-      password: req.body.password
+      password: hPass
     };
     console.log(users);
     res.cookie("user_id", userID)
@@ -87,7 +89,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   for(let user in users) {
     console.log(`${req.body.email}\n${req.body.password}\n${users[user]["email"]} : ${users[user]["password"]}`);
-    if(req.body.email === users[user]["email"] && req.body.password === users[user]["password"]) {
+    if(req.body.email === users[user]["email"] && bcrypt.compareSync(req.body.password, users[user]["password"])) {
       console.log("login success");
       res.cookie("user_id", users[user]["id"])
       .redirect("/urls");
