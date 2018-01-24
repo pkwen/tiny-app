@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <title>TinyApp</title>
+  </head>
+  <body>
+    <header>
+      <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+      <h1 class="jumbotron">TinyApp</h1>
+      <style>
+         body { padding: 50px; }
+      </style>
+    </header>
+    <% if(invalid) { %>
+    <p>Please enter valid email and/or password.</p>
+    <% } %>
+    <form action="/login" method="POST">
+    <label for="email">Enter email:</label>
+    <input id="email" type="email" name="email" placeholder="johndoe@gmail.com">
+    <label for="password">Enter password:</label>
+    <input id="password" type="password" name="password" placeholder="********">
+    <input type="submit" value="Log In">
+    </form>
+  </body>
+</html>
