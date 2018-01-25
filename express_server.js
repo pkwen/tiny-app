@@ -127,62 +127,44 @@ app.post("/logout", (req, res) => {
 
 //index page get route
 app.get("/urls", (req, res) => {
-  if(req.session.user_id) {
-    let templateVars = {
-      user: users[req.session.user_id],
-      urls : urlsForUser(req.session.user_id)
-    };
-    res.render("urls_index", templateVars);
-  } else {
-    res.redirect("/login");
-  }
+  let templateVars = {
+    user: users[req.session.user_id],
+    urls : urlsForUser(req.session.user_id)
+  };
+  res.render("urls_index", templateVars);
 });
 
 //create shortURL route
 app.post("/urls", (req, res) => {
-  if(req.session.user_id) {
   let short = generateRandomString();
   urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, date: new Date().toDateString(), visitors: 0, unique: [] };
   res.redirect(`/urls/${short}`);
-  } else {
-    res.send("You must be logged in to use this.");
-  }
 });
 
 //new url to be shortened get route
 app.get("/urls/new", (req, res) => {
-  if(req.session.user_id) {
-    let templateVars = {
-      user: users[req.session.user_id]
-    };
-    res.render("urls_new", templateVars);
-  }else {
-    res.redirect("/login");
-  }
+  let templateVars = { user: users[req.session.user_id] };
+  res.render("urls_new", templateVars);
 });
 
 //shortened url page get route
 app.get("/urls/:id", (req, res) => {
-  if(req.session.user_id) {
-    if(urlDatabase.hasOwnProperty(req.params.id)) {
-      if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
-        let templateVars = {
-          user: users[req.session.user_id],
-          long: urlDatabase[req.params.id]["longURL"],
-          short: req.params.id,
-          date: urlDatabase[req.params.id]["date"],
-          visitors: urlDatabase[req.params.id]["visitors"],
-          unique: urlDatabase[req.params.id]["unique"]
-        };
-        res.render("urls_show", templateVars);
-      } else {
-        res.send("Cannot view because this link does not belong to you.");
-      }
+  if(urlDatabase.hasOwnProperty(req.params.id)) {
+    if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
+      let templateVars = {
+        user: users[req.session.user_id],
+        long: urlDatabase[req.params.id]["longURL"],
+        short: req.params.id,
+        date: urlDatabase[req.params.id]["date"],
+        visitors: urlDatabase[req.params.id]["visitors"],
+        unique: urlDatabase[req.params.id]["unique"]
+      };
+      res.render("urls_show", templateVars);
     } else {
-      res.send("The page you are trying to reach does not exist.");
+      res.send("Cannot view because this link does not belong to you.");
     }
   } else {
-    res.redirect("/login");
+    res.send("The page you are trying to reach does not exist.");
   }
 });
 
@@ -282,11 +264,12 @@ function urlsForUser(id) {
 
 //function to check login status determining which endpoints user has access to
 function deadCookies(req, res, next) {
-  //if path request is login or register
+  //if path request is login or register or shortened URL link
   if(req.path.match(/login|register|u\//)) {
     next();
     return;
   }
+  //check if user is registered and logged in otherwise redirect
   if(users.hasOwnProperty(req.session.user_id)) {
     next();
     return;
