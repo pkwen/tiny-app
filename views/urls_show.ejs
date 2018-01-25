@@ -9,7 +9,7 @@
 
     <h1>Original URL: <%= long %> ---> Shortened URL: http://localhost:8080/u/<%= short %><p>Created: <%=date%> - Visit count: <%=visitors%> - Unique visits: <%=unique.length%></p></h1>
 
-    <form action="/urls/<%= short %>" method="POST">
+    <form action="/urls/<%= short %>?_method=PUT" method="POST">
     <label for="longURL">Enter updated URL:</label>
     <input id="longURL" type="text" name="longURL" placeholder="http://">
     <input type="submit" value="Update">

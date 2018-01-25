@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
 const morgan = require("morgan");
+const methodOverride = require("method-override");
 
 //global constants
 const urlDatabase = {
@@ -50,6 +51,7 @@ app.use(cookieSession({
 }));
 app.use(morgan("dev"));
 app.use(deadCookies);
+app.use(methodOverride("_method"));
 
 //homepage redirects users to either login or urls depending on login status
 app.get("/", (req, res) => {
@@ -169,7 +171,7 @@ app.get("/urls/:id", (req, res) => {
 });
 
 //establish key value pair between short and long urls
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
     urlDatabase[req.params.id]["longURL"] = checkHTTP(req.body.longURL);
     res.redirect("/urls");
@@ -178,18 +180,8 @@ app.post("/urls/:id", (req, res) => {
   }
 });
 
-//route for when users try to access delete url via address bar
-app.get("/urls/:id/delete", (req, res) => {
-  if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
-    delete urlDatabase[req.params.id];
-    res.redirect("/urls");
-  } else {
-    res.send("You can only delete your own links.");
-  }
-});
-
 //delete shortened url post route
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id/delete", (req, res) => {
   if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
     delete urlDatabase[req.params.id];
     res.redirect("/urls");

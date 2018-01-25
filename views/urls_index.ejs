@@ -14,7 +14,7 @@
             <a href=<%= urls[i]["longURL"] %>><%= urls[i]["longURL"] %></a> <p>Shortened URL: http://localhost:8080/u/<%= i %></p>
             <p>Created: <%=urls[i]["date"]%> - Visit count: <%=urls[i]["visitors"]%> - Unique visits: <%=urls[i]["unique"].length%></p>
           </h1>
-          <form method="POST" action="/urls/<%= i %>/delete">
+          <form method="POST" action="/urls/<%= i %>/delete?_method=DELETE">
             <button>Delete</button>
           </form>
           <form method="GET" action="/urls/<%= i %>">
