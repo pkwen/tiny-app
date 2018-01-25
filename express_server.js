@@ -42,7 +42,7 @@ app.use(cookieSession({
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
-// app.use()
+// app.use(loginStatus);
 
 app.get("/", (req, res) => {
   if(req.session.user_id) {
@@ -158,16 +158,20 @@ app.get("/urls/new", (req, res) => {
 
 //shortened url page get route
 app.get("/urls/:id", (req, res) => {
-  if(req.session.user_id !== undefined) {
-    if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
-      let templateVars = {
-        user: users[req.session.user_id],
-        long: urlDatabase[req.params.id]["longURL"],
-        short: req.params.id
-      };
-      res.render("urls_show", templateVars);
+  if(req.session.user_id) {
+    if(urlDatabase.hasOwnProperty(req.params.id)) {
+      if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
+        let templateVars = {
+          user: users[req.session.user_id],
+          long: urlDatabase[req.params.id]["longURL"],
+          short: req.params.id
+        };
+        res.render("urls_show", templateVars);
+      } else {
+        res.send("Cannot view because this link does not belong to you.");
+      }
     } else {
-      res.send("Cannot view because this link does not belong to you.");
+      res.send("The page you are trying to reach does not exist.");
     }
   } else {
     res.redirect("/login");
@@ -184,6 +188,7 @@ app.post("/urls/:id", (req, res) => {
   }
 });
 
+//route for when users try to access delete url via address bar
 app.get("/urls/:id/delete", (req, res) => {
   if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
     delete urlDatabase[req.params.id];
@@ -258,4 +263,20 @@ function urlsForUser(id) {
     }
   }
   return subset;
+}
+
+//function to check login status determining which endpoints user has access to
+function loginStatus(req, res, next) {
+  //if path request is login or register
+  if(req.path.match(/login|register/)) {
+    next();
+    return;
+  }
+//if current user is registered
+  if(users.hasOwnProperty(req.session.user_id)) {
+    console.log("Authentication successful, welcome " + users[req.session.user_id]["email"]);
+    next();
+  } else {
+    res.redirect("/login");
+  }
 }
