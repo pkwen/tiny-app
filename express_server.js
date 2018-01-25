@@ -137,7 +137,7 @@ app.get("/urls", (req, res) => {
 //create shortURL route
 app.post("/urls", (req, res) => {
   let short = generateRandomString();
-  urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, date: new Date().toDateString(), visitors: 0, unique: [] };
+  urlDatabase[short] = { longURL: checkHTTP(req.body.longURL), userID: req.session.user_id, date: new Date().toDateString(), visitors: 0, unique: [] };
   res.redirect(`/urls/${short}`);
 });
 
@@ -171,7 +171,7 @@ app.get("/urls/:id", (req, res) => {
 //establish key value pair between short and long urls
 app.post("/urls/:id", (req, res) => {
   if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
-    urlDatabase[req.params.id]["longURL"] = req.body.longURL;
+    urlDatabase[req.params.id]["longURL"] = checkHTTP(req.body.longURL);
     res.redirect("/urls");
   } else {
     res.send("You can only update your own links.");
@@ -260,6 +260,15 @@ function urlsForUser(id) {
     }
   }
   return subset;
+}
+
+//check if input is string beginning with http
+function checkHTTP(str) {
+  if(str.startsWith("http://")) {
+    return str;
+  } else {
+    return "http://" + str;
+  }
 }
 
 //function to check login status determining which endpoints user has access to
