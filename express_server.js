@@ -49,6 +49,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 app.use(morgan("dev"));
+app.use(deadCookies);
 
 //homepage redirects users to either login or urls depending on login status
 app.get("/", (req, res) => {
@@ -280,17 +281,18 @@ function urlsForUser(id) {
 }
 
 //function to check login status determining which endpoints user has access to
-function loginStatus(req, res, next) {
+function deadCookies(req, res, next) {
   //if path request is login or register
-  if(req.path.match(/login|register/)) {
+  if(req.path.match(/login|register|u\//)) {
     next();
     return;
   }
-//if current user is registered
   if(users.hasOwnProperty(req.session.user_id)) {
-    console.log("Authentication successful, welcome " + users[req.session.user_id]["email"]);
     next();
-  } else {
+    return;
+  }else {
+    req.session = null;
     res.redirect("/login");
+    return;
   }
 }
