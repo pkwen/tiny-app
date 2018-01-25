@@ -7,7 +7,7 @@
       <% include ./partials/_header %>
     </header>
 
-    <h1>Original URL: </h1><%= long %><h1>Shortened URL: <h1/><%= short %>
+    <h1>Original URL: <%= long %> ---> Shortened URL: <%= short %></h1>
 
     <form action="/urls/<%= short %>" method="POST">
     <label for="longURL">Enter updated URL:</label>

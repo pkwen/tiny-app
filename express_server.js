@@ -5,7 +5,7 @@ var PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
-
+const morgan = require("morgan");
 
 //global constants
 const urlDatabase = {
@@ -42,8 +42,9 @@ app.use(cookieSession({
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
-// app.use(loginStatus);
+app.use(morgan("dev"));
 
+//homepage redirects users to either login or urls depending on login status
 app.get("/", (req, res) => {
   if(req.session.user_id) {
     res.redirect("/urls");
@@ -79,7 +80,6 @@ app.post("/register", (req, res) => {
       email: req.body.email,
       password: hPass
     };
-    console.log(users);
     req.session.user_id = userID;
     res.redirect("/urls");
   } else if(req.body.password.length < 6) {
@@ -103,9 +103,7 @@ app.get("/login", (req, res) => {
 //login submission post route
 app.post("/login", (req, res) => {
   for(let user in users) {
-    console.log(`${req.body.email}\n${req.body.password}\n${users[user]["email"]} : ${users[user]["password"]}`);
     if(req.body.email === users[user]["email"] && bcrypt.compareSync(req.body.password, users[user]["password"])) {
-      console.log("login success");
       req.session.user_id = users[user]["id"];
       res.redirect("/urls");
       return;

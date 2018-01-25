@@ -1,9 +1,10 @@
 {
-  "name": "using-express",
+  "name": "tiny-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "URL shortener",
   "main": "index.js",
   "scripts": {
+    "start": "node express_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,6 +15,7 @@
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-beta.3",
     "ejs": "^2.5.7",
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "morgan": "^1.9.0"
   }
 }
