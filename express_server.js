@@ -42,6 +42,7 @@ app.use(cookieSession({
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
+// app.use()
 
 app.get("/", (req, res) => {
   if(req.session.user_id) {
@@ -53,6 +54,10 @@ app.get("/", (req, res) => {
 
 //register page get route
 app.get("/register", (req, res) => {
+  if(req.session.user_id && users.hasOwnProperty(req.session.user_id)) {
+    res.redirect("/urls");
+    return;
+  }
   res.render("register", { repeat: false, invalid: false });
 });
 
@@ -88,6 +93,10 @@ app.post("/register", (req, res) => {
 
 //login page get route
 app.get("/login", (req, res) => {
+  if(req.session.user_id && users.hasOwnProperty(req.session.user_id)) {
+    res.redirect("/urls");
+    return;
+  }
   res.render("login", { invalid: false });
 });
 
@@ -113,18 +122,26 @@ app.post("/logout", (req, res) => {
 
 //index page get route
 app.get("/urls", (req, res) => {
-  let templateVars = {
-    user: users[req.session.user_id],
-    urls : urlsForUser(req.session.user_id)
-  };
-  res.render("urls_index", templateVars);
+  if(req.session.user_id) {
+    let templateVars = {
+      user: users[req.session.user_id],
+      urls : urlsForUser(req.session.user_id)
+    };
+    res.render("urls_index", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 //create shortURL route
 app.post("/urls", (req, res) => {
+  if(req.session.user_id) {
   let short = generateRandomString();
   urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id };
   res.redirect(`/urls/${short}`);
+  } else {
+    res.send("You must be logged in to use this.");
+  }
 });
 
 //new url to be shortened get route
@@ -145,7 +162,8 @@ app.get("/urls/:id", (req, res) => {
     if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
       let templateVars = {
         user: users[req.session.user_id],
-        shortURL: req.params.id
+        long: urlDatabase[req.params.id]["longURL"],
+        short: req.params.id
       };
       res.render("urls_show", templateVars);
     } else {
@@ -166,6 +184,15 @@ app.post("/urls/:id", (req, res) => {
   }
 });
 
+app.get("/urls/:id/delete", (req, res) => {
+  if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+  } else {
+    res.send("You can only delete your own links.");
+  }
+});
+
 //delete shortened url post route
 app.post("/urls/:id/delete", (req, res) => {
   if(req.session.user_id === urlDatabase[req.params.id]["userID"]) {
@@ -183,8 +210,13 @@ app.get("/urls.json", (req, res) => {
 
 //redirect short to long url get route
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL]["longURL"];
-  res.redirect(longURL);
+  if(urlDatabase.hasOwnProperty(req.params.shortURL)) {
+    let longURL = urlDatabase[req.params.shortURL]["longURL"];
+    res.redirect(longURL);
+  } else {
+    res.statusCode = 404;
+    res.send("Not found.");
+  }
 });
 
 //error page for uris that were not implemented

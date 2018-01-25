@@ -6,12 +6,12 @@
     <header>
       <% include ./partials/_header %>
     </header>
-    <ul>
-        <li><h1>Shortened URL: <h1><%= shortURL %></li>
-    </ul>
-    <form action="/urls/<%= shortURL %>" method="POST">
+
+    <h1>Original URL: </h1><%= long %><h1>Shortened URL: <h1/><%= short %>
+
+    <form action="/urls/<%= short %>" method="POST">
     <label for="longURL">Enter updated URL:</label>
-    <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+    <input id="longURL" type="text" name="longURL" placeholder="http://">
     <input type="submit" value="Update">
     </form>
   </body>
