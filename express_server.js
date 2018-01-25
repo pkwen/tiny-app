@@ -11,11 +11,17 @@ const morgan = require("morgan");
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    userID: "random1"
+    userID: "random1",
+    date: new Date("1999-12-31").toDateString(),
+    visitors: 0,
+    unique: []
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    userID: "random1"
+    userID: "random1",
+    date: new Date("1998-01-08").toDateString(),
+    visitors: 0,
+    unique: []
   }
 };
 
@@ -135,7 +141,7 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   if(req.session.user_id) {
   let short = generateRandomString();
-  urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id };
+  urlDatabase[short] = { longURL: req.body.longURL, userID: req.session.user_id, date: new Date().toDateString(), visitors: 0, unique: [] };
   res.redirect(`/urls/${short}`);
   } else {
     res.send("You must be logged in to use this.");
@@ -162,7 +168,10 @@ app.get("/urls/:id", (req, res) => {
         let templateVars = {
           user: users[req.session.user_id],
           long: urlDatabase[req.params.id]["longURL"],
-          short: req.params.id
+          short: req.params.id,
+          date: urlDatabase[req.params.id]["date"],
+          visitors: urlDatabase[req.params.id]["visitors"],
+          unique: urlDatabase[req.params.id]["unique"]
         };
         res.render("urls_show", templateVars);
       } else {
@@ -215,6 +224,13 @@ app.get("/urls.json", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   if(urlDatabase.hasOwnProperty(req.params.shortURL)) {
     let longURL = urlDatabase[req.params.shortURL]["longURL"];
+    if(!req.session.user_id) {
+    req.session.user_id = generateRandomString();
+    urlDatabase[req.params.shortURL]["unique"].push(req.session.user_id);
+    } else if (req.session.user_id && !urlDatabase[req.params.shortURL]["unique"].includes(req.session.user_id)) {
+      urlDatabase[req.params.shortURL]["unique"].push(req.session.user_id);
+    }
+    urlDatabase[req.params.shortURL]["visitors"] += 1;
     res.redirect(longURL);
   } else {
     res.statusCode = 404;
