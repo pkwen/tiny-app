@@ -11,7 +11,7 @@
       <% for(var i in urls) { %>
         <li>
           <h1>
-            <a href=<%= urls[i]["longURL"] %>><%= urls[i]["longURL"] %></a> <p>Shortened URL: <%= i %></p>
+            <a href=<%= urls[i]["longURL"] %>><%= urls[i]["longURL"] %></a> <p>Shortened URL: http://localhost:8080/u/<%= i %></p>
             <p>Created: <%=urls[i]["date"]%> - Visit count: <%=urls[i]["visitors"]%> - Unique visits: <%=urls[i]["unique"].length%></p>
           </h1>
           <form method="POST" action="/urls/<%= i %>/delete">
