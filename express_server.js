@@ -38,6 +38,8 @@ const users = {
     password: bcrypt.hashSync("qwerasdf", 10)
   }
 };
+//declare and initialize empty array for visitor log
+const vLog = [];
 
 //body-parser, ejs engine and cookie-parser implementations
 app.use(bodyParser.urlencoded({extended: true}));
@@ -159,7 +161,8 @@ app.get("/urls/:id", (req, res) => {
         short: req.params.id,
         date: urlDatabase[req.params.id]["date"],
         visitors: urlDatabase[req.params.id]["visitors"],
-        unique: urlDatabase[req.params.id]["unique"]
+        unique: urlDatabase[req.params.id]["unique"],
+        vLog: vLog
       };
       res.render("urls_show", templateVars);
     } else {
@@ -197,13 +200,18 @@ app.get("/urls.json", (req, res) => {
 
 //redirect short to long url get route
 app.get("/u/:shortURL", (req, res) => {
+  let date = new Date().toString();
   if(urlDatabase.hasOwnProperty(req.params.shortURL)) {
     let longURL = urlDatabase[req.params.shortURL]["longURL"];
     if(!req.session.user_id) {
     req.session.user_id = generateRandomString();
+    vLog.push(date + " by User: " + req.session.user_id);
     urlDatabase[req.params.shortURL]["unique"].push(req.session.user_id);
     } else if (req.session.user_id && !urlDatabase[req.params.shortURL]["unique"].includes(req.session.user_id)) {
       urlDatabase[req.params.shortURL]["unique"].push(req.session.user_id);
+      vLog.push(date + " by User: " + req.session.user_id);
+    } else {
+      vLog.push(date + " by User: " + req.session.user_id);
     }
     urlDatabase[req.params.shortURL]["visitors"] += 1;
     res.redirect(longURL);

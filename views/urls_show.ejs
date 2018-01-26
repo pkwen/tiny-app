@@ -8,7 +8,13 @@
     </header>
 
     <h1>Original URL: <%= long %> ---> Shortened URL: http://localhost:8080/u/<%= short %><p>Created: <%=date%> - Visit count: <%=visitors%> - Unique visits: <%=unique.length%></p></h1>
-
+    <ol>
+      <% for(let i = vLog.length - 1; i >= 0; i--) { %>
+      <li>
+        <%= vLog[i] %>
+      </li>
+    <% } %>
+    </ol>
     <form action="/urls/<%= short %>?_method=PUT" method="POST">
     <label for="longURL">Enter updated URL:</label>
     <input id="longURL" type="text" name="longURL" placeholder="http://">
