@@ -141,7 +141,13 @@ app.get("/urls", (req, res) => {
 //create shortURL route
 app.post("/urls", (req, res) => {
   let short = generateRandomString();
-  urlDatabase[short] = { longURL: checkHTTP(req.body.longURL), userID: req.session.user_id, date: new Date().toDateString(), visitors: 0, unique: [] };
+  urlDatabase[short] = {
+    longURL: checkHTTP(req.body.longURL),
+    userID: req.session.user_id,
+    date: new Date().toLocaleString("en-US", {timeZone: "America/New_York"}),
+    visitors: 0,
+    unique: []
+  };
   res.redirect(`/urls/${short}`);
 });
 
@@ -200,7 +206,7 @@ app.get("/urls.json", (req, res) => {
 
 //redirect short to long url get route
 app.get("/u/:shortURL", (req, res) => {
-  let date = new Date().toString();
+  let date = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
   if(urlDatabase.hasOwnProperty(req.params.shortURL)) {
     let longURL = urlDatabase[req.params.shortURL]["longURL"];
     if(!req.session.user_id) {
